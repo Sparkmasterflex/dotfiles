@@ -11,12 +11,11 @@ fi
 # ls 
 alias ls='ls -GhF'                  # linux: --color=auto; Mac: -G 
 alias lr='ls -R'                    # recursive ls
-alias ll='ls -l'
+alias ll='ls -al'
 alias la='ll -A'
 alias lx='ll -BX'                   # sort by extension
 alias lz='ll -rS'                   # sort by size
-alias lt='ll -rt'                   # sort by date
-alias lm='la | more'
+# alias lt='ll -rt'                   # sort by date
 alias tree='tree -Csu'     # nice alternative to 'recursive ls'; Don't have tree installed - WHY NOT?
 
 # Add some color to grep
@@ -128,24 +127,98 @@ function lowercase()  # move filenames to lowercase
 }
 
 # --------- Rails specific
-
-# compile sass 
-# prerequisites: SASS gem; $gem install sass; MUST be in project $DIR
-alias watch:s="echo 'Watching /stylesheets/sass/*.scss and outputting to /stylesheets/*.css' && sass --watch stylesheets/sass:stylesheets" 
-alias watch:c="echo 'Watching /javascripts/coffee/*.coffee and outputting to /javascripts/*.js' && coffee -o javascripts -cw javascripts/coffee"
-
-# ruby/rails testing
-alias ccmb='clear && bundle exec rake cucumber'
-alias ccmb:w='clear && bundle exec rake cucumber:wip'
-alias rsp='clear && bundle exec rake spec'
-
-# ruby/rails sunspot
-alias solr='bundle exec rake sunspot:solr:start'
-alias solr:s='bundle exec rake sunspot:solr:stop'
-alias solr:i='bundle exec rake sunspot:solr:reindex'
+alias spec:all='clear; bundle exec rake RAILS_ENV=test spec'
+alias spec='clear; bundle exec rspec'
+alias spec:seed='clear; bundle exec rspec --seed'
+alias spec:fail='clear; bundle exec rspec --only-failures'
+#  --order defined -f d
 
 # rails/rake
 alias routes='bundle exec rake routes'
 alias migrate='bundle exec rake db:migrate'
 alias migrate:r='bundle exec rake db:migrate:reset'
+alias rake='bundle exec rake'
+alias rails='bundle exec rails'
 
+alias r:clear="echo 'Resque.queues.each{|q| Resque.redis.del \"queue:#{q}\" }' | pbcopy && echo 'Resque.queues.each{|q| Resque.redis.del \"queue:#{q}\" } COPIED!' && rails c"
+alias r:pool="bundle exec resque-pool --environment development --daemon"
+
+function git_pull_current_branch {
+  git pull --rebase origin $(git rev-parse --abbrev-ref HEAD)
+}
+
+function git_push_current_branch {
+  git push origin $(git rev-parse --abbrev-ref HEAD)
+}
+
+function git_force_push_current_branch {
+  git push origin $(git rev-parse --abbrev-ref HEAD) --force
+}
+
+alias gpull="git_pull_current_branch"
+alias gpush="git_push_current_branch"
+alias gpush-force="git_force_push_current_branch"
+
+# GIT commands
+alias g='git'
+alias gco='GTI_SPEED=2000 gti checkout'
+alias gc:pro='GTI_SPEED=2000 gti checkout production'
+alias gs='git status'
+alias gb='GTI_SPEED=2000 gti branch'
+alias ga='git add'
+alias gd='git diff'
+alias gb-del='GTI_SPEED=2000 gti branch -D'
+
+alias gc-empty='git commit --allow-empty'
+
+alias gg='gg+ | head -n `expr $LINES / 2`'
+alias gg+='GTI_SPEED=2000 gti log --oneline --abbrev-commit --all --graph --decorate --color'
+
+function git_log_between() {
+  if [ -z ${1+x} ]; then
+    echo "===== need a date ===="
+  else
+    git log --after="$1" --before="$2"
+  fi
+}
+alias gl=git_log_between
+
+alias sync='browser-sync start --proxy localhost:3000 --files "app/**/*"'
+
+npm_publish() {
+  if [ -z ${1+x} ]; then
+    echo "===== ERROR: versioning require: 'major', 'minor' or 'patch' ======"
+  else
+    echo "npm run build"
+    if [ $1 != "help" ]; then
+      npm run build
+    fi
+    echo "npm version $1"
+    if [ $1 != "help" ]; then
+      npm version $1
+    fi
+    echo "git push"
+    if [ $1 != "help" ]; then
+      gpush
+    fi
+    echo "npm publish"
+    if [ $1 != "help" ]; then
+      npm publish
+    fi
+  fi
+}
+alias npm:pub=npm_publish
+
+alias shrug="echo '¯\\_(ツ)_/¯' | pbcopy && echo '¯\\_(ツ)_/¯'"
+alias tableflip="echo '(╯°□°）╯︵ ┻━┻' | pbcopy && echo '(╯°□°）╯︵ ┻━┻'"
+alias tfreplace="echo '┬─┬ノ( º _ ºノ)' | pbcopy && echo '┬─┬ノ( º _ ºノ)'"
+
+export CDPATH=/Users/realgeeks-keithraymond/Apps
+
+source /usr/local/share/chruby/chruby.sh
+source /usr/local/share/chruby/auto.sh
+
+set -o vi
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
