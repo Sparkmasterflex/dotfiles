@@ -127,14 +127,15 @@ function lowercase()  # move filenames to lowercase
 }
 
 # --------- Rails specific
-alias spec:all='clear; bundle exec rake RAILS_ENV=test spec'
+
 alias spec='clear; bundle exec rspec'
 alias spec:seed='clear; bundle exec rspec --seed'
 alias spec:fail='clear; bundle exec rspec --only-failures'
-#  --order defined -f d
+alias dc-spec='clear; docker-compose run spec rspec'
 
 # rails/rake
 alias routes='bundle exec rake routes'
+alias routesg='bundle exec rake routes | grep '
 alias migrate='bundle exec rake db:migrate'
 alias migrate:r='bundle exec rake db:migrate:reset'
 alias rake='bundle exec rake'
@@ -144,7 +145,7 @@ alias r:clear="echo 'Resque.queues.each{|q| Resque.redis.del \"queue:#{q}\" }' |
 alias r:pool="bundle exec resque-pool --environment development --daemon"
 
 function git_pull_current_branch {
-  git pull --rebase origin $(git rev-parse --abbrev-ref HEAD)
+  git pull --autostash --rebase origin $(git rev-parse --abbrev-ref HEAD)
 }
 
 function git_push_current_branch {
@@ -161,18 +162,18 @@ alias gpush-force="git_force_push_current_branch"
 
 # GIT commands
 alias g='git'
-alias gco='GTI_SPEED=2000 gti checkout'
-alias gc:pro='GTI_SPEED=2000 gti checkout production'
+alias gco='git checkout'
+alias gc:pro='git checkout production'
 alias gs='git status'
-alias gb='GTI_SPEED=2000 gti branch'
+alias gb='git branch'
 alias ga='git add'
 alias gd='git diff'
-alias gb-del='GTI_SPEED=2000 gti branch -D'
+alias gb-del='git branch -D'
 
 alias gc-empty='git commit --allow-empty'
 
 alias gg='gg+ | head -n `expr $LINES / 2`'
-alias gg+='GTI_SPEED=2000 gti log --oneline --abbrev-commit --all --graph --decorate --color'
+alias gg+='git log --oneline --abbrev-commit --all --graph --decorate --color'
 
 function git_log_between() {
   if [ -z ${1+x} ]; then
@@ -209,16 +210,94 @@ npm_publish() {
 }
 alias npm:pub=npm_publish
 
+git_collaborator() {
+  keith="Keith Raymond <raymondke99@gmail.com>"
+  aaron="Aaron Van Bokhoven <bokhoven@gmail.com>"
+  sam="Sam Livingston-Gray <geeksam@gmail.com>"
+  ben="Ben Ward <ben@mauilabs.com>"
+  chrisc="Chris Cenatiempo <chrisc@realgeeks.com>"
+  sass="Chris Sass <chris@lupinedev.com>"
+
+  unset collaborated_with
+
+  if [ -z ${1+x} ]; then
+    collaborated_with=$keith
+  else
+    case "$1" in
+      "keith")
+        collaborated_with=$keith
+        ;;
+
+      "aaron")
+        collaborated_with=$aaron
+        ;;
+
+      "sam")
+        collaborated_with=$sam
+        ;;
+
+      "ben")
+        collaborated_with=$ben
+        ;;
+
+      "chrisc")
+        collaborated_with=$chrisc
+        ;;
+
+      "sass")
+        collaborated_with=$sass
+        ;;
+
+      *)
+        help="keith: $keith\naaron: $aaron\nsam: $sam\nben: $ben\nchrisc: $chrisc\nsass: $sass"
+        ;;
+    esac
+  fi
+
+  if [ -z ${collaborated_with+x} ]; then
+    printf "$help"
+  else
+    to_copy="Co-authored-by: $collaborated_with"
+    echo $to_copy | pbcopy
+    echo "$to_copy copied"
+  fi
+}
+
+alias gitx="smerge ."
+alias gcollab=git_collaborator
+alias yourmom="gcollab aaron; say 'I collaborated with your mom... all night long'"
+alias yourmom-s="gcollab aaron"
+alias gstash="git stash --include-untracked"
+
+
+# Random notes
+alias npm:creds="echo \"Username: realgeeks\"; echo \"Password: Ohioans930'uplifted\"; echo \"email: sorin@hq.realgeeks.com\""
+alias aws:creds="echo \"Username: keith\"; echo \"Password: xRA5R8f|xAIu\"; echo \"email: keith@realgeeks.com\""
+alias rg2:start="echo \"docker-compose run --service-ports rg2\"; echo \"docker-compose run --service-ports --no-deps style-server\""
+
+alias rgexport="export AWS_DEFAULT_REGION=\"us-east-1\""
+##################
+#  Projects
+##################
+alias lm='cd ~/Apps/lead_manager && source ./script/docker_nfs_env_vars.sh && docker container ls -a && pwd'
+alias np='cd ~/Apps/newman-projects && pwd'
+alias smf='cd ~/sparkmasterflex && pwd'
+
 alias shrug="echo '¯\\_(ツ)_/¯' | pbcopy && echo '¯\\_(ツ)_/¯'"
+alias gshrug="echo '¯\\\_(ツ)\\_/¯' | pbcopy && echo '¯\\_(ツ)_/¯'"
 alias tableflip="echo '(╯°□°）╯︵ ┻━┻' | pbcopy && echo '(╯°□°）╯︵ ┻━┻'"
 alias tfreplace="echo '┬─┬ノ( º _ ºノ)' | pbcopy && echo '┬─┬ノ( º _ ºノ)'"
+alias fu="echo 't(-.-t)' | pbcopy && echo 't(-.-t)'"
 
 export CDPATH=/Users/realgeeks-keithraymond/Apps
 
-source /usr/local/share/chruby/chruby.sh
-source /usr/local/share/chruby/auto.sh
-
 set -o vi
+
+alias brah="say 'bra!'; git"
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
